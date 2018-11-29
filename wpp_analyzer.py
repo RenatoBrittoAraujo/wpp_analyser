@@ -45,6 +45,7 @@ class Wpp_analyser(object):
         df = pd.DataFrame(messages,columns=['Label','Message'])
         df['Lenght']=df['Message'].apply(len)
         df['Words']=df['Message'].apply(lambda x: len(x.split()))
+        print('\n')
         return df
 
 
@@ -54,6 +55,7 @@ class Wpp_analyser(object):
         print('Number of messages:')
         for i in labels:
             print(i, arr[i])
+        print('\n')
 
     #Prints the percetages of each ones interactions
     def messages_percentage(self, df):
@@ -63,6 +65,7 @@ class Wpp_analyser(object):
         t=len(df)
         for i in df['Label'].unique():
             print(i, "- {0:.2f}%".format(100.0*arr[i]/t))
+        print('\n')
 
     #trains ml script with dataframe info
     def learn_from_messages(self,df,report=False):
@@ -119,10 +122,13 @@ class Wpp_analyser(object):
                 ('classifier',MultinomialNB()),
             ])
             pipeline.fit(xtrain,ytrain)
+            print('\n')
             return pipeline
 
     #Predicts the person which is more likely to send a certain message
     def ml_analyzer(self,test,machine):
         results = machine.predict(test)
+        print('Predictions:')
         for i in range(0,len(test)):
             print(test[i],"-- Most probable: ",results[i])
+        print('\n')
