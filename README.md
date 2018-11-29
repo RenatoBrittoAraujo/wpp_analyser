@@ -1,4 +1,4 @@
-# wpp_analyzer
+# WhatsApp Analyzer
 
 Turns WhatsApp conversations into pandas dataframes, display statistics about it and also includes some ML to predict who is more likely to say a certain phrases in a conversation.
 
