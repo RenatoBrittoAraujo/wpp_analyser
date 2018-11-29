@@ -1,13 +1,15 @@
-class wpp_analyser(object):
+import numpy as np
+import pandas as pd
+class Wpp_analyzer(object):
     def __init__(self):
-        print('WhatsApp Analyser Ready!')
+        print('WhatsApp Analyzer Ready!')
         print('Use wpp_file_reader() and pass as parameter the file name of choice to turn file to dataframe')
-
-    import numpy as np
-    import pandas as pd
-
-    #separates labels from messages
-    def septext(self, text):
+        
+    
+    #input of file (returns pandas dataframe)
+    def wpp_file_reader(self,text):
+        file = open(text,'r',encoding="utf8")
+        text = file.read()
         messages=[]
         t = len(text)
         for i in range(0,len(text)):
@@ -36,26 +38,14 @@ class wpp_analyser(object):
                     message=''
                     for j in range(3,fim):
                         message+=text[i+j-1]
-                    if message == '<Arquivo de mídia oculto>' or message == 'Esta mensagem foi apagada':
+                    if message == '<Arquivo de mÃ­dia oculto>' or message == 'Esta mensagem foi apagada':
                         continue
                     if ':' not in label and len(message) > 0:
                         messages.append([label,message])
-
-        return messages
-
-    #turns list of labels and messages into pandas dataframe
-    def dfwppcon(self,text):
-        rtext = text
-        arrs = septext(rtext)
-        df = pd.DataFrame(arrs,columns=['Label','Message'])
+        df = pd.DataFrame(messages,columns=['Label','Message'])
         df['Lenght']=df['Message'].apply(len)
         df['Words']=df['Message'].apply(lambda x: len(x.split()))
         return df
-
-    #input of file (returns pandas dataframe)
-    def wpp_file_reader(self,text):
-        file = open(text,'r',encoding="utf8")
-        return dfwppcon(file.read())
 
 
     def messages_brute(self, df):
@@ -125,4 +115,3 @@ class wpp_analyser(object):
         results = machine.predict(test)
         for i in range(0,len(test)):
             print(test[i],"-- Most probable: ",results[i])
-
