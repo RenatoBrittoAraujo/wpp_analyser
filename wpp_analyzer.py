@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
-class Wpp_analyzer(object):
+class Wpp_analyser(object):
     def __init__(self):
-        print('WhatsApp Analyzer Ready!')
+        print('WhatsApp Analyser Ready!')
         print('Use wpp_file_reader() and pass as parameter the file name of choice to turn file to dataframe')
         
     
@@ -65,18 +65,9 @@ class Wpp_analyzer(object):
             print(i, "- {0:.2f}%".format(100.0*arr[i]/t))
 
     #trains ml script with dataframe info
-    def learn_from_messages(self,df):
+    def learn_from_messages(self,df,report=False):
         
         print('This will take a while, sit back and enjoy a cup of coffee! Learning takes time (and effort from your CPU)')
-        
-        def limpa_pal(pal):
-            tstsp = [car for car in pal if car not in string.punctuation]
-            tstsp = ''.join(tstsp)
-            cm = [word for word in tstsp.split() if word.lower() not in stopwords.words('portuguese')]
-            cm = [word for word in tstsp.split() if word.lower() not in stopwords.words('english')]
-            for i in range(0,len(cm)): 
-                cm[i]=cm[i].lower()
-            return cm
         
         from sklearn.feature_extraction.text import CountVectorizer
         import string
@@ -85,6 +76,16 @@ class Wpp_analyzer(object):
         from sklearn.naive_bayes import MultinomialNB
         from sklearn.model_selection import train_test_split
         from sklearn.pipeline import Pipeline
+        
+        stopwords = stopwords.words('english')+stopwords.words('portuguese')
+        
+        def limpa_pal(pal):
+            tstsp = [car for car in pal if car not in string.punctuation]
+            tstsp = ''.join(tstsp)
+            cm = [word for word in tstsp.split() if word.lower() not in stopwords]
+            for i in range(0,len(cm)): 
+                cm[i]=cm[i].lower()
+            return cm
         
         bow_transformer = CountVectorizer(analyzer=limpa_pal).fit(df['Message'])
         
@@ -98,20 +99,30 @@ class Wpp_analyzer(object):
         
         model = MultinomialNB().fit(messages_tfidf, df['Label'])
         
-        xtrain,xtest,ytrain,ytest = train_test_split(df['Message'],df['Label'],test_size=0)
-        
-        pipeline = Pipeline([
-            ('bow', CountVectorizer(analyzer=limpa_pal)),
-            ('tfidf', TfidfTransformer()),
-            ('classifier',MultinomialNB()),
-        ])
-        
-        pipeline.fit(xtrain,ytrain)
-        
-        return pipeline
+        if report:
+            xtrain,xtest,ytrain,ytest = train_test_split(df['Message'],df['Label'],test_size=0.2)
+            from sklearn.metrics import classification_report
+            pipeline = Pipeline([
+                ('bow', CountVectorizer(analyzer=limpa_pal)),
+                ('tfidf', TfidfTransformer()),
+                ('classifier',MultinomialNB()),
+            ])
+            pipeline.fit(xtrain,ytrain)
+            pred = pipeline.predict(xtest)
+            print(classification_report(pred,ytest))
+            return pipeline
+        else:
+            xtrain,xtest,ytrain,ytest = train_test_split(df['Message'],df['Label'],test_size=0)
+            pipeline = Pipeline([
+                ('bow', CountVectorizer(analyzer=limpa_pal)),
+                ('tfidf', TfidfTransformer()),
+                ('classifier',MultinomialNB()),
+            ])
+            pipeline.fit(xtrain,ytrain)
+            return pipeline
 
     #Predicts the person which is more likely to send a certain message
-    def ml_analyser(self,test,machine):
+    def ml_analyzer(self,test,machine):
         results = machine.predict(test)
         for i in range(0,len(test)):
             print(test[i],"-- Most probable: ",results[i])
