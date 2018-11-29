@@ -1,4 +1,4 @@
-# wpp_analyser
+# wpp_analyzer
 
 Turns WhatsApp conversations into pandas dataframes, display statistics about it and also includes some ML to predict who is more likely to say a certain phrases in a conversation.
 
@@ -8,19 +8,17 @@ Guide
 
   Here's how to do it: https://faq.whatsapp.com/en/android/23756533/
 
-2. Import wpp_analyser to your python code
+2. Import wpp_analyzer to your python code
+
+        from wpp_analyzer import Wpp_analyzer
 
 3. Start the class
-
-  Example: 
   
-    wppal = wpp_analyser()
+         wppal = wpp_analyzer()
 
-4. Read your file
+4. Read your file (ATTENTION: see that 'r' right before the string of file path? Put it there, it's important)
 
-  Example: 
-  
-     df = wppal.wpp_file_reader('messages.txt')
+          df = wppal.wpp_file_reader(r'messages.txt')
 
 5. Now your data frame is ready, these are the things you can do
 
