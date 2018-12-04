@@ -6,7 +6,7 @@ class Wpp_analyser(object):
         print('Use wpp_file_reader() and pass as parameter the file name of choice to turn file to dataframe')
         
     
-    #input of file (returns pandas dataframe)
+    #input of file (returns pandas dataframe) --- pass literal file path as parameter 
     def wpp_file_reader(self,text):
         file = open(text,'r',encoding="utf8")
         text = file.read()
@@ -17,6 +17,7 @@ class Wpp_analyser(object):
                 ind=-1
                 fim=-1
                 for j in range(1,10):
+                    #finds the pattern in the .txt file
                     if text[i-j-1]=='-' and text[i-j-5]==':' and text[i-j-11]=='/' and text[i-j-14]=='/':
                         ind = j-1
                         break
@@ -38,17 +39,16 @@ class Wpp_analyser(object):
                     message=''
                     for j in range(3,fim):
                         message+=text[i+j-1]
-                    if message == '<Arquivo de mídia oculto>' or message == 'Esta mensagem foi apagada':
-                        continue
                     if ':' not in label and len(message) > 0:
                         messages.append([label,message])
+        #Makes the dataframe and returns it 
         df = pd.DataFrame(messages,columns=['Label','Message'])
         df['Lenght']=df['Message'].apply(len)
         df['Words']=df['Message'].apply(lambda x: len(x.split()))
         print('\n')
         return df
 
-
+    #Prints for each user the amount of messages it read -- pass the dataframe as parameter
     def messages_brute(self, df):
         arr = df.groupby('Label')['Message'].count()
         labels = df['Label'].unique()
@@ -57,7 +57,7 @@ class Wpp_analyser(object):
             print(i, arr[i])
         print('\n')
 
-    #Prints the percetages of each ones interactions
+    #Prints for each user the percentage of participation in the conversation -- pass the dataframe as parameter
     def messages_percentage(self, df):
         arr = df.groupby('Label')['Message'].count()
         labels = df['Label'].unique()
@@ -67,7 +67,7 @@ class Wpp_analyser(object):
             print(i, "- {0:.2f}%".format(100.0*arr[i]/t))
         print('\n')
 
-    #trains ml script with dataframe info
+    #trains ml script with dataframe info ---- report=True prints a table of how good is the ML predicting
     def learn_from_messages(self,df,report=False):
         
         print('This will take a while, sit back and enjoy a cup of coffee! Learning takes time (and effort from your CPU)')
@@ -79,9 +79,10 @@ class Wpp_analyser(object):
         from sklearn.naive_bayes import MultinomialNB
         from sklearn.model_selection import train_test_split
         from sklearn.pipeline import Pipeline
-        
+       
         stopwords = stopwords.words('english')+stopwords.words('portuguese')
         
+        #filters irrelevant words or punctuation
         def limpa_pal(pal):
             tstsp = [car for car in pal if car not in string.punctuation]
             tstsp = ''.join(tstsp)
@@ -125,7 +126,7 @@ class Wpp_analyser(object):
             print('\n')
             return pipeline
 
-    #Predicts the person which is more likely to send a certain message
+    #Predicts the person which is more likely to send each of the messages passed as parameter in test, machine is the pipeline returned by learn_from_messages()
     def ml_analyzer(self,test,machine):
         results = machine.predict(test)
         print('Predictions:')
