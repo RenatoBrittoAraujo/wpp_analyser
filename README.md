@@ -1,5 +1,7 @@
 # WhatsApp Analyzer
 
+*SPAGHETTI WARNING*: the code right ahead is the abomination I have spawned to learn some python, don't stare for too long. You have been warned
+
 Turns WhatsApp conversations into pandas dataframes, display statistics about it and also includes some ML to predict who is more likely to say a certain phrases in a conversation.
 
 Guide
